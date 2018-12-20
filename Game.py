@@ -8,7 +8,7 @@ window.bgpic('images/background.png')
 #window.tracer(n=2)
 
 BASE_X, BASE_Y = 0, -230
-base = turtle.Turtle(visible=False)
+
 
 def create_missile(color, x, y, x1, y1):
     missile = turtle.Turtle(visible=False)
@@ -85,6 +85,14 @@ window.onclick(our_missile)
 
 our_missiles = []
 enemy_missiles = []
+
+base = turtle.Turtle()
+base.hideturtle()
+base.penup()
+base.setpos(BASE_X, BASE_Y)
+window.register_shape('images/base.gif')
+base.shape('images/base.gif')
+base.showturtle()
 
 while True:
     window.update()
