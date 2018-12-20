@@ -10,9 +10,27 @@ window.tracer(n=2)
 BASE_X, BASE_Y = 0, -230
 
 
+class Objects:
+    def __init__(self, x, y, health, path):
+        self.x = x
+        self.y = y
+        self.health = health
+
+        point = turtle.Turtle()
+        point.hideturtle()
+        point.penup()
+        point.setpos(x, y)
+        window.register_shape(path)
+        point.shape(path)
+        point.showturtle()
+        self.point = point
+
+
 def create_missile(color, x, y, x1, y1):
     missile = turtle.Turtle(visible=False)
     missile.color(color)
+    # window.register_shape(os.path.join(os.path.dirname(__file__), 'images', 'missile_our.gif'))
+    # missile.shape(os.path.join(os.path.dirname(__file__), 'images', 'missile_our.gif'))
     missile.penup()
     missile.setpos(x, y)
     missile.pendown()
@@ -84,13 +102,16 @@ def intercept_missile():
 def damage_to_base():
     for enemy_info in enemy_missiles:
         enemy_missile = enemy_info["missile"]
-        if enemy_missile.distance(BASE_X, BASE_Y) < enemy_info["radius"] * 10:
-            global base_health
-            base_health -= 100
+        if enemy_info["status"] != "explode":
+            continue
+        if enemy_missile.distance(base.x, base.y) < enemy_info["radius"] * 10 and \
+                enemy_info["radius"] == 1:
+            #global base_health
+            base.health -= 100
 
 
 def game_over():
-    return base_health < 0
+    return base.health < 0
 
 
 window.onclick(our_missile)
@@ -98,15 +119,11 @@ window.onclick(our_missile)
 our_missiles = []
 enemy_missiles = []
 
-base = turtle.Turtle()
-base.hideturtle()
-base.penup()
-base.setpos(BASE_X, BASE_Y)
-window.register_shape(os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
-base.shape(os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
-base.showturtle()
 
-base_health = 2000
+base = Objects(x=BASE_X, y=BASE_Y, health=1000, path=os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
+
+kremlin = Objects(x=-200, y=-200, health=1000, path=os.path.join(os.path.dirname(__file__), 'images', 'kremlin_1.gif'))
+
 
 while True:
     window.update()
