@@ -5,10 +5,10 @@ from random import randint
 window = turtle.Screen()
 window.setup(900, 600)
 window.bgpic('images/background.png')
-window.tracer(n=2)
+#window.tracer(n=2)
 
 BASE_X, BASE_Y = 0, -230
-
+base = turtle.Turtle(visible=False)
 
 def create_missile(color, x, y, x1, y1):
     missile = turtle.Turtle(visible=False)
@@ -21,7 +21,8 @@ def create_missile(color, x, y, x1, y1):
     missile.showturtle()
     info = {"missile": missile,
             "target": [x1, y1],
-            "status": "launched"}
+            "status": "launched",
+            "radius": 0}
     return info
 
 
@@ -48,9 +49,16 @@ def launch(missiles):
                 info["status"] = "explode"
                 missile.shape('circle')
         elif status == "explode":
+            info["radius"] += 1
+            if info["radius"] > 3:
+                missile.clear()
+                missile.hideturtle()
+                info["status"] = "dead"
+            else:
+                missile.shapesize(info["radius"])
+        elif status == "dead":
             missile.clear()
             missile.hideturtle()
-            info["status"] = "dead"
 
     dead_missiles = [i for i in missiles if i["status"] == "dead"]
     for dead in dead_missiles:
@@ -64,15 +72,13 @@ def count_enemy_missiles():
 
 def intercept_missile():
     for our_info in our_missiles:
-        # if our_info["status"] != "explode":   # intercept missile in explode
-        #     continue
+        if our_info["status"] != "explode":   # intercept missile in explode
+            continue
         our_missile = our_info["missile"]
         for enemy_info in enemy_missiles:
             enemy_missile = enemy_info["missile"]
-            if enemy_missile.distance(our_missile.xcor(), our_missile.ycor()) < 10:
-                enemy_info["status"] = "explode"
-                our_info["status"] = "explode"
-                our_missile.shape('circle')
+            if enemy_missile.distance(our_missile.xcor(), our_missile.ycor()) < our_info["radius"] * 10:
+                enemy_info["status"] = "dead"
 
 
 window.onclick(our_missile)
