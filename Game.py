@@ -1,11 +1,11 @@
-import math
 import turtle
+import os
 from random import randint
 
 window = turtle.Screen()
 window.setup(900, 600)
-window.bgpic('images/background.png')
-#window.tracer(n=2)
+window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.png'))
+window.tracer(n=2)
 
 BASE_X, BASE_Y = 0, -230
 
@@ -81,6 +81,18 @@ def intercept_missile():
                 enemy_info["status"] = "dead"
 
 
+def damage_to_base():
+    for enemy_info in enemy_missiles:
+        enemy_missile = enemy_info["missile"]
+        if enemy_missile.distance(BASE_X, BASE_Y) < enemy_info["radius"] * 10:
+            global base_health
+            base_health -= 100
+
+
+def game_over():
+    return base_health < 0
+
+
 window.onclick(our_missile)
 
 our_missiles = []
@@ -90,13 +102,18 @@ base = turtle.Turtle()
 base.hideturtle()
 base.penup()
 base.setpos(BASE_X, BASE_Y)
-window.register_shape('images/base.gif')
-base.shape('images/base.gif')
+window.register_shape(os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
+base.shape(os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
 base.showturtle()
+
+base_health = 2000
 
 while True:
     window.update()
+    if game_over():
+        continue
     intercept_missile()
+    damage_to_base()
     count_enemy_missiles()
     launch(enemy_missiles)
     launch(our_missiles)
