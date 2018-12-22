@@ -10,20 +10,60 @@ window.tracer(n=2)
 BASE_X, BASE_Y = 0, -230
 
 
-class Objects:
-    def __init__(self, x, y, health, path):
+class Buildings:
+    def __init__(self, x, y, health, pic):
         self.x = x
         self.y = y
         self.health = health
-
+        self.pic = pic
+        self.full_health = health
         point = turtle.Turtle()
         point.hideturtle()
         point.penup()
         point.setpos(x, y)
-        window.register_shape(path)
-        point.shape(path)
+        window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(pic, 0)))
+        point.shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(pic, 0)))
         point.showturtle()
         self.point = point
+
+    def pic_object(self, name, number):
+        our_objects = {"base": ["base.gif", "base.gif", "base.gif"],
+                       "kremlin": ["kremlin_1.gif", "kremlin_2.gif", "kremlin_3.gif"],
+                       "house": ["house_1.gif", "house_2.gif", "house_3.gif"],
+                       "nuclear": ["nuclear_1.gif", "nuclear_2.gif", "nuclear_3.gif"],
+                       "skyscraper": ["skyscraper_1.gif", "skyscraper_2.gif", "skyscraper_3.gif"]}
+        pic = our_objects[name][number]
+        return pic
+
+    def damage_to_buildings(self):
+        for enemy_info in enemy_missiles:
+            enemy_missile = enemy_info["missile"]
+            if enemy_info["status"] != "explode":
+                continue
+            if enemy_missile.distance(self.x, self.y) < enemy_info["radius"] * 10 and \
+                    enemy_info["radius"] == 1:
+                self.health -= 100
+            if self.health < self.full_health / 2:
+                window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 1)))
+                self.point.shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 1)))
+            elif self.health < 0:
+                window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 2)))
+                self.point.shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 2)))
+
+
+buildings = []
+
+
+def create_buildings():
+    buildings_type = ['kremlin', 'nuclear', 'skyscraper', 'house']
+    coordinates = [[-350, -230], [-200, -230], [200, -230], [350, -230]]
+    health = [4000, 3000, 2000, 1000, 500]
+    base = buildings.append(Buildings(x=BASE_X, y=BASE_Y, health=4000, pic='base'))
+    for i in range(len(buildings_type)):
+        buildings.append(Buildings(x=coordinates[i][0], y=coordinates[i][1], health=health[i], pic=buildings_type[i]))
+
+
+create_buildings()
 
 
 def create_missile(color, x, y, x1, y1):
@@ -99,19 +139,8 @@ def intercept_missile():
                 enemy_info["status"] = "dead"
 
 
-def damage_to_base():
-    for enemy_info in enemy_missiles:
-        enemy_missile = enemy_info["missile"]
-        if enemy_info["status"] != "explode":
-            continue
-        if enemy_missile.distance(base.x, base.y) < enemy_info["radius"] * 10 and \
-                enemy_info["radius"] == 1:
-            #global base_health
-            base.health -= 100
-
-
 def game_over():
-    return base.health < 0
+    return buildings[0].health < 0
 
 
 window.onclick(our_missile)
@@ -120,17 +149,13 @@ our_missiles = []
 enemy_missiles = []
 
 
-base = Objects(x=BASE_X, y=BASE_Y, health=1000, path=os.path.join(os.path.dirname(__file__), 'images', 'base.gif'))
-
-kremlin = Objects(x=-200, y=-200, health=1000, path=os.path.join(os.path.dirname(__file__), 'images', 'kremlin_1.gif'))
-
-
 while True:
     window.update()
     if game_over():
         continue
     intercept_missile()
-    damage_to_base()
+    for self in buildings:
+        self.damage_to_buildings()
     count_enemy_missiles()
     launch(enemy_missiles)
     launch(our_missiles)
