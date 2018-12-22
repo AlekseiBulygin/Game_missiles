@@ -37,11 +37,11 @@ class Buildings:
 
     def damage_to_buildings(self):
         for enemy_info in enemy_missiles:
-            enemy_missile = enemy_info["missile"]
-            if enemy_info["status"] != "explode":
+            enemy_missile = enemy_info.missile
+            if enemy_info.status != "explode":
                 continue
-            if enemy_missile.distance(self.x, self.y) < enemy_info["radius"] * 10 and \
-                    enemy_info["radius"] == 1:
+            if enemy_missile.distance(self.x, self.y) < enemy_info.radius * 10 and \
+                    enemy_info.radius == 1:
                 self.health -= 100
             if self.health < self.full_health / 2:
                 window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 1)))
@@ -66,7 +66,7 @@ def create_buildings():
 create_buildings()
 
 class Missile:
-    def __init(self, color, x, y, x1, y1):
+    def __init__(self, color, x, y, x1, y1):
         self.x = x
         self.y = y
         self.to_x = x1
@@ -93,7 +93,6 @@ class Missile:
         return self.missile.ycor()
 
     def move(self):
-        #missile = self.missile
         status = self.status
         if status == "launched":
             self.missile.forward(4)
@@ -114,60 +113,23 @@ class Missile:
             self.missile.hideturtle()
 
 
-
-def create_missile(color, x, y, x1, y1):
-    missile = turtle.Turtle(visible=False)
-    missile.color(color)
-    # window.register_shape(os.path.join(os.path.dirname(__file__), 'images', 'missile_our.gif'))
-    # missile.shape(os.path.join(os.path.dirname(__file__), 'images', 'missile_our.gif'))
-    missile.penup()
-    missile.setpos(x, y)
-    missile.pendown()
-    lenght = missile.towards(x1, y1)
-    missile.setheading(lenght)
-    missile.showturtle()
-    info = {"missile": missile,
-            "target": [x1, y1],
-            "status": "launched",
-            "radius": 0}
-    return info
-
-
 def enemy_missile():
     start_x = randint(-400, 400)
     start_y = 300
-    info = create_missile("red", start_x, start_y, BASE_X, BASE_Y)
+    info = Missile(color="red", x=start_x, y=start_y, x1=BASE_X, y1=BASE_Y)
     enemy_missiles.append(info)
 
 
 def our_missile(x, y):
-    info = create_missile("white", BASE_X, BASE_Y, x, y)
+    info = Missile(color="white", x=BASE_X, y=BASE_Y, x1=x, y1=y)
     our_missiles.append(info)
 
 
 def launch(missiles):
     for info in missiles:
-        missile = info["missile"]
-        status = info["status"]
-        if status == "launched":
-            missile.forward(4)
-            target = info["target"]
-            if missile.distance(x=target[0], y=target[1]) < 10:
-                info["status"] = "explode"
-                missile.shape('circle')
-        elif status == "explode":
-            info["radius"] += 1
-            if info["radius"] > 3:
-                missile.clear()
-                missile.hideturtle()
-                info["status"] = "dead"
-            else:
-                missile.shapesize(info["radius"])
-        elif status == "dead":
-            missile.clear()
-            missile.hideturtle()
+        info.move()
 
-    dead_missiles = [i for i in missiles if i["status"] == "dead"]
+    dead_missiles = [i for i in missiles if i.status == "dead"]
     for dead in dead_missiles:
         missiles.remove(dead)
 
@@ -179,13 +141,13 @@ def count_enemy_missiles():
 
 def intercept_missile():
     for our_info in our_missiles:
-        if our_info["status"] != "explode":   # intercept missile in explode
+        if our_info.status != "explode":   # intercept missile in explode
             continue
-        our_missile = our_info["missile"]
+        our_missile = our_info.missile
         for enemy_info in enemy_missiles:
-            enemy_missile = enemy_info["missile"]
-            if enemy_missile.distance(our_missile.xcor(), our_missile.ycor()) < our_info["radius"] * 10:
-                enemy_info["status"] = "dead"
+            enemy_missile = enemy_info.missile
+            if enemy_missile.distance(our_missile.get_x(), our_missile.get_y()) < our_info.radius * 10:
+                enemy_info.status = "dead"
 
 
 def game_over():
