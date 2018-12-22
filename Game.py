@@ -98,7 +98,8 @@ class Buildings:
             self.title.write(str(self.title_health), align="center", font=["Arial", 10, "bold"])
 
     def is_alive(self):
-        return self.health > 0
+        return self.health >= 0
+
 
 class MyBase(Buildings):
     def get_picture(self):
@@ -155,6 +156,11 @@ def create_buildings():
         buildings.append(Buildings(x=info[0], y=info[1], health=info[2], name=name))
 
 
+def draw_buildings():
+    for building in buildings:
+        building.draw()
+
+
 def damage_to_buildings():
     for enemy_info in enemy_missiles:
         enemy_missile = enemy_info.missile
@@ -181,26 +187,42 @@ buildings_type = {'kremlin': [-350, -220, 4000],
 window = turtle.Screen()
 window.setup(900, 600)
 window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.png'))
-window.tracer(n=2)
-window.onclick(our_missile)
 
-our_missiles = []
 
-enemy_missiles = []
-create_buildings()
+def game():
 
-def draw_buildings():
-    for building in buildings:
-        building.draw()
+    global our_missiles, enemy_missiles, buildings
+
+    window.clear()
+    buildings.clear()
+    window.tracer(n=2)
+    #window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.png'))
+    window.onclick(our_missile)
+
+    our_missiles = []
+
+    enemy_missiles = []
+    create_buildings()
+
+    while True:
+        window.update()
+        draw_buildings()
+        if game_over():
+            break
+        intercept_missile()
+        damage_to_buildings()
+        count_enemy_missiles()
+        launch(enemy_missiles)
+        launch(our_missiles)
+
+    pen = turtle.Turtle(visible=False)
+    pen.speed(0)
+    pen.penup()
+    pen.write("game over", align="center", font=["Arial", 20, "bold"])
 
 
 while True:
-    window.update()
-    draw_buildings()
-    if game_over():
-        continue
-    intercept_missile()
-    damage_to_buildings()
-    count_enemy_missiles()
-    launch(enemy_missiles)
-    launch(our_missiles)
+    game()
+    answer = window.textinput(title="Hello", prompt="Want more? y/n")
+    if answer.lower() not in ['y', 'yes', 'да', 'д']:
+        break
