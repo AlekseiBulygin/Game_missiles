@@ -65,6 +65,24 @@ def create_buildings():
 
 create_buildings()
 
+class Missile:
+    def __init(self, color, x, y, x1, y1):
+        self.x = x
+        self.y = y
+        self.to_x = x1
+        self.to_y = y1
+        self.color = color
+
+        pen = turtle.Turtle(visible=False)
+        pen.color(color)
+        pen.penup()
+        pen.setpos(x, y)
+        pen.pendown()
+        lenght = pen.towards(x1, y1)
+        pen.setheading(lenght)
+        pen.showturtle()
+
+
 
 def create_missile(color, x, y, x1, y1):
     missile = turtle.Turtle(visible=False)
