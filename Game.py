@@ -2,9 +2,11 @@ import turtle
 import os
 from random import randint, choice
 
-
-
 BASE_X, BASE_Y = 0, -220
+BUILDINGS_TYPE = {'kremlin': [-350, -220, 4000],
+                  'nuclear': [-200, -220, 3000],
+                  'skyscraper': [200, -220, 2000],
+                  'house': [350, -220, 500]}
 
 
 class Missile:
@@ -152,7 +154,7 @@ def intercept_missile():
 
 def create_buildings():
     buildings.append(MyBase(x=BASE_X, y=BASE_Y, health=4000, name='base'))
-    for name, info in buildings_type.items():
+    for name, info in BUILDINGS_TYPE.items():
         buildings.append(Buildings(x=info[0], y=info[1], health=info[2], name=name))
 
 
@@ -178,16 +180,8 @@ def game_over():
 
 buildings = []
 
-buildings_type = {'kremlin': [-350, -220, 4000],
-                  'nuclear': [-200, -220, 3000],
-                  'skyscraper': [200, -220, 2000],
-                  'house': [350, -220, 500]}
-
-
 window = turtle.Screen()
 window.setup(900, 600)
-window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.png'))
-
 
 def game():
 
@@ -196,7 +190,7 @@ def game():
     window.clear()
     buildings.clear()
     window.tracer(n=2)
-    #window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.png'))
+    window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.gif'))
     window.onclick(our_missile)
 
     our_missiles = []
