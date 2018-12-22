@@ -72,6 +72,9 @@ class Missile:
         self.to_x = x1
         self.to_y = y1
         self.color = color
+        self.status = "launched"
+        self.target = x1, y1
+        self.radius = 0
 
         pen = turtle.Turtle(visible=False)
         pen.color(color)
@@ -81,6 +84,34 @@ class Missile:
         lenght = pen.towards(x1, y1)
         pen.setheading(lenght)
         pen.showturtle()
+        self.missile = pen
+
+    def get_x(self):
+        return self.missile.xcor()
+
+    def get_y(self):
+        return self.missile.ycor()
+
+    def move(self):
+        #missile = self.missile
+        status = self.status
+        if status == "launched":
+            self.missile.forward(4)
+            target = self.target
+            if self.missile.distance(x=self.to_x, y=self.to_y) < 10:
+                self.status = "explode"
+                self.missile.shape('circle')
+        elif status == "explode":
+            self.radius += 1
+            if self.radius > 3:
+                self.missile.clear()
+                self.missile.hideturtle()
+                self.status = "dead"
+            else:
+                self.missile.shapesize(self.radius)
+        elif status == "dead":
+            self.missile.clear()
+            self.missile.hideturtle()
 
 
 
