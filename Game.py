@@ -1,6 +1,6 @@
 import turtle
 import os
-from random import randint
+from random import randint, choice
 
 window = turtle.Screen()
 window.setup(900, 600)
@@ -42,8 +42,8 @@ class Buildings:
                 continue
             if enemy_missile.distance(self.x, self.y) < enemy_info.radius * 10 and \
                     enemy_info.radius == 1:
-                self.health -= 100
-            if self.health < self.full_health / 2:
+                self.health -= 300
+            if 0 < self.health < self.full_health / 2:
                 window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 1)))
                 self.point.shape(os.path.join(os.path.dirname(__file__), 'images', self.pic_object(self.pic, 1)))
             elif self.health < 0:
@@ -74,7 +74,7 @@ class Missile:
         self.color = color
         self.status = "launched"
         self.target = x1, y1
-        self.radius = 0
+        self.radius = 1
 
         pen = turtle.Turtle(visible=False)
         pen.color(color)
@@ -116,7 +116,12 @@ class Missile:
 def enemy_missile():
     start_x = randint(-400, 400)
     start_y = 300
-    info = Missile(color="red", x=start_x, y=start_y, x1=BASE_X, y1=BASE_Y)
+    seq_target = [-350, -200, 0, 200, 350]
+    def choose_target():
+        x = choice(seq_target)
+        return x
+
+    info = Missile(color="red", x=start_x, y=start_y, x1=choose_target(), y1=BASE_Y)
     enemy_missiles.append(info)
 
 
@@ -143,10 +148,9 @@ def intercept_missile():
     for our_info in our_missiles:
         if our_info.status != "explode":   # intercept missile in explode
             continue
-        our_missile = our_info.missile
         for enemy_info in enemy_missiles:
             enemy_missile = enemy_info.missile
-            if enemy_missile.distance(our_missile.get_x(), our_missile.get_y()) < our_info.radius * 10:
+            if enemy_missile.distance(our_info.get_x(), our_info.get_y()) < our_info.radius * 10:
                 enemy_info.status = "dead"
 
 
