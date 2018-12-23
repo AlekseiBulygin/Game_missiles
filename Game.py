@@ -3,7 +3,7 @@ import os
 from random import randint, choice
 
 BASE_X, BASE_Y = 0, -220
-BUILDINGS_TYPE = {'kremlin': [-350, -220, 4000],
+BUILDINGS_TYPE = {'factory': [-350, -220, 4000],
                   'nuclear': [-200, -220, 3000],
                   'skyscraper': [200, -220, 2000],
                   'house': [350, -220, 500]}
@@ -94,10 +94,14 @@ class Buildings:
         if self.point.shape() != os.path.join(os.path.dirname(__file__), 'images', picture):
             window.register_shape(os.path.join(os.path.dirname(__file__), 'images', picture))
             self.point.shape(os.path.join(os.path.dirname(__file__), 'images', picture))
-        if self.health != self.title_health:
+        if self.health != self.title_health and self.health >= 0:
             self.title_health = self.health
             self.title.clear()
-            self.title.write(str(self.title_health), align="center", font=["Arial", 10, "bold"])
+            self.title.write(self.title_health, align="center", font=["Arial", 10, "bold"])
+        elif self.health != self.title_health and self.health < 0:
+            self.title_health = self.health
+            self.title.clear()
+            self.title.write("0", align="center", font=["Arial", 10, "bold"])
 
     def is_alive(self):
         return self.health >= 0
@@ -107,7 +111,7 @@ class MyBase(Buildings):
     def get_picture(self):
 
         for missile in our_missiles:
-            if missile.missile.distance(self.x, self.y) < 20:
+            if missile.missile.distance(self.x, self.y) < 50:
                 return f"{self.name}_opened.gif"
 
         return f"{self.name}.gif"
@@ -124,7 +128,7 @@ def enemy_missile():
 
 
 def our_missile(x, y):
-    info = Missile(color="white", x=BASE_X, y=BASE_Y, x1=x, y1=y)
+    info = Missile(color="white", x=BASE_X, y=BASE_Y + 20, x1=x, y1=y)
     our_missiles.append(info)
 
 
@@ -182,6 +186,7 @@ buildings = []
 
 window = turtle.Screen()
 window.setup(900, 600)
+
 
 def game():
 
