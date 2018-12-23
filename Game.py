@@ -1,8 +1,11 @@
 import turtle
 import os
+import shutil
+from PIL import Image
 from random import randint, choice
 
 BASE_X, BASE_Y = 0, -220
+ENEMY_COUNT = 5
 BUILDINGS_TYPE = {'factory': [-350, -220, 4000],
                   'nuclear': [-200, -220, 3000],
                   'skyscraper': [200, -220, 2000],
@@ -28,6 +31,18 @@ class Missile:
         lenght = pen.towards(x1, y1)
         pen.setheading(lenght)
         pen.showturtle()
+
+        picture = "missile_enemy.gif"
+        if color == "white":
+            picture = "missile_our.gif"
+        self.name = f"{color}_turned_{lenght}.gif"
+        image_obj = Image.open(os.path.join(os.path.dirname(__file__), 'images', picture)).convert("RGB")
+        bg = Image.new("RGBA", image_obj.size, (255, 0, 0, 0))
+        bg.paste(image_obj.rotate(lenght))
+        bg.save(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name), 'GIF', transparency=0)
+        window.register_shape(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name))
+        pen.shape(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name))
+
         self.missile = pen
 
     def get_x(self):
@@ -139,10 +154,10 @@ def launch(missiles):
     dead_missiles = [i for i in missiles if i.status == "dead"]
     for dead in dead_missiles:
         missiles.remove(dead)
-
+        os.remove(os.path.join(os.path.dirname(__file__), "launched_missiles", dead.name))
 
 def count_enemy_missiles():
-    if len(enemy_missiles) < 5:
+    if len(enemy_missiles) < ENEMY_COUNT:
         enemy_missile()
 
 
@@ -175,7 +190,7 @@ def damage_to_buildings():
         for building in buildings:
             if enemy_missile.distance(building.x, building.y) < enemy_info.radius * 10 and \
                     enemy_info.radius == 1:
-                building.health -= 1000
+                building.health -= 100
 
 
 def game_over():
@@ -202,7 +217,8 @@ def game():
 
     enemy_missiles = []
     create_buildings()
-
+    if not os.path.exists("launched_missiles"):
+        os.makedirs("launched_missiles")
     while True:
         window.update()
         draw_buildings()
@@ -224,4 +240,5 @@ while True:
     game()
     answer = window.textinput(title="Hello", prompt="Want more? y/n")
     if answer.lower() not in ['y', 'yes', 'да', 'д']:
+        shutil.rmtree("launched_missiles")
         break
