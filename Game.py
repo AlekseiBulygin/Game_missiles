@@ -13,6 +13,27 @@ BUILDINGS_TYPE = {'factory': [-350, -220, 4000],
                   'house': [350, -220, 500]}
 
 
+class PointsInGame:
+
+    def __init__(self):
+        self.start_points = 0
+        self.points = 0
+        title = turtle.Turtle()
+        title.hideturtle()
+        title.color("white")
+        title.speed(0)
+        title.penup()
+        title.setpos(x=-400, y=250)
+        title.write(f"Points: {self.start_points}", align="center", font=["Arial", 10, "bold"])
+        self.title = title
+
+    def check_points(self):
+        if self.points != self.start_points:
+            self.start_points = self.points
+            self.title.clear()
+            self.title.write(f"Points: {self.points}", align="center", font=["Arial", 10, "bold"])
+
+
 class Missile:
     def __init__(self, color, x, y, x1, y1):
         self.x = x
@@ -37,10 +58,12 @@ class Missile:
         if color == "white":
             picture = "missile_our.gif"
         self.name = f"{color}_turned_{lenght}.gif"
+        if os.path.exists(os.path.join(PATH, "launched_missiles", self.name)):
+            self.name = f"{color}_turned_{lenght + randint(0, 100)}.gif"
         image_obj = Image.open(os.path.join(PATH, 'images', picture)).convert("RGB")
         bg = Image.new("RGBA", image_obj.size, (255, 0, 0, 0))
         bg.paste(image_obj.rotate(lenght))
-        bg.save(os.path.join(PATH, "launched_missiles", self.name), 'GIF', transparency=0)
+        bg.save(os.path.join(PATH, "launched_missiles", self.name), transparency=0)
         window.register_shape(os.path.join(PATH, "launched_missiles", self.name))
         pen.shape(os.path.join(PATH, "launched_missiles", self.name))
 
@@ -157,6 +180,7 @@ def launch(missiles):
         missiles.remove(dead)
         os.remove(os.path.join(os.path.dirname(__file__), "launched_missiles", dead.name))
 
+
 def count_enemy_missiles():
     if len(enemy_missiles) < ENEMY_COUNT:
         enemy_missile()
@@ -170,6 +194,8 @@ def intercept_missile():
             enemy_missile = enemy_info.missile
             if enemy_missile.distance(our_info.get_x(), our_info.get_y()) < our_info.radius * 10:
                 enemy_info.status = "dead"
+                global points
+                points.points += 10
 
 
 def create_buildings():
@@ -206,16 +232,16 @@ window.setup(900, 600)
 
 def game():
 
-    global our_missiles, enemy_missiles, buildings
+    global our_missiles, enemy_missiles, buildings, points
 
     window.clear()
     buildings.clear()
     window.tracer(n=2)
     window.bgpic(os.path.join(PATH, 'images', 'background.gif'))
     window.onclick(our_missile)
+    points = PointsInGame()
 
     our_missiles = []
-
     enemy_missiles = []
     create_buildings()
     if not os.path.exists("launched_missiles"):
@@ -226,15 +252,17 @@ def game():
         if game_over():
             break
         intercept_missile()
+        points.check_points()
         damage_to_buildings()
         count_enemy_missiles()
         launch(enemy_missiles)
         launch(our_missiles)
 
     pen = turtle.Turtle(visible=False)
+    pen.color("red")
     pen.speed(0)
     pen.penup()
-    pen.write("game over", align="center", font=["Arial", 20, "bold"])
+    pen.write("game over", align="center", font=["Arial", 30, "bold"])
 
 
 while True:
