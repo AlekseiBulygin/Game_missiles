@@ -4,6 +4,7 @@ import shutil
 from PIL import Image
 from random import randint, choice
 
+PATH = os.path.dirname(__file__)
 BASE_X, BASE_Y = 0, -220
 ENEMY_COUNT = 5
 BUILDINGS_TYPE = {'factory': [-350, -220, 4000],
@@ -36,12 +37,12 @@ class Missile:
         if color == "white":
             picture = "missile_our.gif"
         self.name = f"{color}_turned_{lenght}.gif"
-        image_obj = Image.open(os.path.join(os.path.dirname(__file__), 'images', picture)).convert("RGB")
+        image_obj = Image.open(os.path.join(PATH, 'images', picture)).convert("RGB")
         bg = Image.new("RGBA", image_obj.size, (255, 0, 0, 0))
         bg.paste(image_obj.rotate(lenght))
-        bg.save(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name), 'GIF', transparency=0)
-        window.register_shape(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name))
-        pen.shape(os.path.join(os.path.dirname(__file__), "launched_missiles", self.name))
+        bg.save(os.path.join(PATH, "launched_missiles", self.name), 'GIF', transparency=0)
+        window.register_shape(os.path.join(PATH, "launched_missiles", self.name))
+        pen.shape(os.path.join(PATH, "launched_missiles", self.name))
 
         self.missile = pen
 
@@ -83,8 +84,8 @@ class Buildings:
         point.speed(0)
         point.penup()
         point.setpos(x=self.x, y=self.y)
-        window.register_shape(os.path.join(os.path.dirname(__file__), 'images', self.get_picture()))
-        point.shape(os.path.join(os.path.dirname(__file__), 'images', self.get_picture()))
+        window.register_shape(os.path.join(PATH, 'images', self.get_picture()))
+        point.shape(os.path.join(PATH, 'images', self.get_picture()))
         point.showturtle()
         self.point = point
 
@@ -106,9 +107,9 @@ class Buildings:
 
     def draw(self):
         picture = self.get_picture()
-        if self.point.shape() != os.path.join(os.path.dirname(__file__), 'images', picture):
-            window.register_shape(os.path.join(os.path.dirname(__file__), 'images', picture))
-            self.point.shape(os.path.join(os.path.dirname(__file__), 'images', picture))
+        if self.point.shape() != os.path.join(PATH, 'images', picture):
+            window.register_shape(os.path.join(PATH, 'images', picture))
+            self.point.shape(os.path.join(PATH, 'images', picture))
         if self.health != self.title_health and self.health >= 0:
             self.title_health = self.health
             self.title.clear()
@@ -210,7 +211,7 @@ def game():
     window.clear()
     buildings.clear()
     window.tracer(n=2)
-    window.bgpic(os.path.join(os.path.dirname(__file__), 'images', 'background.gif'))
+    window.bgpic(os.path.join(PATH, 'images', 'background.gif'))
     window.onclick(our_missile)
 
     our_missiles = []
