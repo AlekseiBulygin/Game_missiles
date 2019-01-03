@@ -178,7 +178,10 @@ def launch(missiles):
     dead_missiles = [i for i in missiles if i.status == "dead"]
     for dead in dead_missiles:
         missiles.remove(dead)
-        os.remove(os.path.join(os.path.dirname(__file__), "launched_missiles", dead.name))
+        try:
+            os.remove(os.path.join(os.path.dirname(__file__), "launched_missiles", dead.name))
+        except FileNotFoundError:
+            pass
 
 
 def count_enemy_missiles():
